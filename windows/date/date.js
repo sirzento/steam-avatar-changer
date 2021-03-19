@@ -1,5 +1,6 @@
 const dialog = require('electron').remote.dialog;
 const BrowserWindow = require('electron').BrowserWindow;
+const ipcRenderer = require('electron').ipcRenderer;
 
 let filePath = null;
 
@@ -24,7 +25,7 @@ function sendForm(event) {
     let name = document.getElementById("name").value;
     let dateFrom = document.getElementById("dateFrom").value;
     let dateTo = document.getElementById("dateTo").value;
-    let isDefault = document.getElementById("isDefault").value;
+    let isDefault = document.getElementById("isDefault").checked;
 
 
     // TODO check if dateFrom < dateTo

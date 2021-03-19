@@ -133,7 +133,7 @@ function loadOverview() {
   let exists = fs.existsSync("./data.json");
   let empty = true;
   if(exists) {
-    let data = fs.readFileSync('./data.json');
+    let data = JSON.parse(fs.readFileSync('./data.json'));
     if(data.length > 0) {
       empty = false;
     }
@@ -204,7 +204,8 @@ ipcMain.on('saveDate', function (event, date) {
   fs.copyFileSync(date.filePath, newFilePath);
   date.filePath = newFilePath;
 
-  let data = fs.readFileSync('./data.json');
+  // TODO nur ein default gleichzeitig
+  let data = JSON.parse(fs.readFileSync('./data.json'));
   let exists = data.find(x => x.name == date.name);
   if(exists) {
     exists.filePath = date.filePath;
