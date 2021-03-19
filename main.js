@@ -8,6 +8,8 @@ var _sessionID = null;
 var _cookies = null;
 var _steamguard = null;
 var _oAthToken = null;
+var _steamUsername = null;
+var _steamAvatarUrl = null;
 
 var _tempUser = null;
 var _tempPass = null;
@@ -93,7 +95,8 @@ function initLogin() {
         console.log("Login succesfully");
         _sessionID = sessionID;
         _cookies = cookies;
-        _mainWindow.loadFile('./windows/Overview/overview.html');
+        getSteamUserInfo();
+        loadOverview();
       }
     })
   }
@@ -119,9 +122,19 @@ function login(details) {
 			fs.writeFile("./secrets/auth.secret", oAuthToken, function() {
 				console.log("auth writen.");
 			})
+      getSteamUserInfo();
       console.log("Login Erfolgreich");
+      loadOverview();
 		}
 	})
+}
+
+function loadOverview() {
+  if(fs.existsSync("./data.json")) {
+    _mainWindow.loadFile('./windows/Overview/overview.html');
+  } else {
+    _mainWindow.loadFile('./windows/Overview/empty/overviewEmpty.html');
+  }
 }
 
 function getSteamGuardCode(details) {
@@ -144,11 +157,35 @@ function getSteamGuardCode(details) {
   _2facWindow.loadFile('./windows/2fac/2fac.html');
 }
 
+function getSteamUserInfo() {
+  community.getSteamUser(community.steamID, (err, user) => {
+    if(err) {
+      console.log(err.message);
+    }
+    _steamAvatarUrl = user.getAvatarURL();
+    _steamUsername = user.name;
+  })
+}
+
 
 ipcMain.on('login', function (event, details) {
   details.disableMobile = false;
   login(details);
 });
+
+ipcMain.on('logout', function(event) {
+    _sessionID = null;
+    _cookies = null;
+    _steamguard = null;
+    _oAthToken = null;
+    _steamUsername = null;
+    _steamAvatarUrl = null;
+    if(fs.existsSync('./secrets/guard.secret')) {
+      fs.rmSync('./secrets/guard.secret');
+      fs.rmSync('./secrets/auth.secret');
+    }
+    _mainWindow.loadFile('index.html');
+})
 
 ipcMain.on('2FacLogin', function (event, details) {
   _2facWindow.close();
@@ -158,6 +195,10 @@ ipcMain.on('2FacLogin', function (event, details) {
   _tempPass = null;
   _tempUser = null;
   login(details);
+});
+
+ipcMain.on('getUserInfo', function (event) {
+  event.sender.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
 });
 
 function changeImage(imagePath) {
