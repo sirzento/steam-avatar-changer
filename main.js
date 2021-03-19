@@ -130,7 +130,15 @@ function login(details) {
 }
 
 function loadOverview() {
-  if(fs.existsSync("./data.json")) {
+  let exists = fs.existsSync("./data.json");
+  let empty = true;
+  if(exists) {
+    let data = fs.readFileSync('./data.json');
+    if(data.length > 0) {
+      empty = false;
+    }
+  }
+  if(exists && !empty) {
     _mainWindow.loadFile('./windows/Overview/overview.html');
   } else {
     _mainWindow.loadFile('./windows/Overview/empty/overviewEmpty.html');
@@ -189,6 +197,26 @@ ipcMain.on('logout', function(event) {
 
 ipcMain.on('newDate', function (event) {
   _mainWindow.loadFile('./windows/date/date.html');
+});
+
+ipcMain.on('saveDate', function (event, date) {
+  let newFilePath = './avatars/' + date.filePath.split('/')[date.filePath.split('/').length - 1]
+  fs.copyFileSync(date.filePath, newFilePath);
+  date.filePath = newFilePath;
+
+  let data = fs.readFileSync('./data.json');
+  let exists = data.find(x => x.name == date.name);
+  if(exists) {
+    exists.filePath = date.filePath;
+    exists.dateFrom = date.dateFrom;
+    exists.dateTo = date.dateTo;
+    exists.isDefault = date.isDefault;
+  } else {
+    data.push(date);
+  }
+
+  fs.writeFileSync('./data.json', JSON.stringify(data));
+  _mainWindow.loadFile('./windows/Overview/overview.html');
 });
 
 ipcMain.on('2FacLogin', function (event, details) {

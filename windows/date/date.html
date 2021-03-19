@@ -17,7 +17,37 @@
         </ul>
       </nav>
       
-      
+      <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="col-4">
+                <div class="justify-content-center align-items-center" id="imageArea" onclick="JavaScript:loadImage()" style="width: 200px; height: 200px; border: 1px solid lightslategray;">
+                    <span>Add Image</span>
+                </div>
+            </div>
+            <div class="col-8">
+                <form name="ipcForm" onSubmit="JavaScript:sendForm(event)">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" name="name" id="name" class="form-control" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateFrom">Date from</label>
+                        <input type="date" name="dateFrom" id="dateFrom" class="form-control" placeholder="">
+                        
+                        <label for="dateTo">Date to</label>
+                        <input type="date" name="dateTo" id="dateTo" class="form-control" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="isDefault" checked="">
+                            <label class="custom-control-label" for="isDefault">Default Avatar? (Only one Avatar can be the default)</label>
+                        </div>
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Save">
+                </form>
+            </div>
+        </div>
+      </div>
 
 </body>
 </html>
