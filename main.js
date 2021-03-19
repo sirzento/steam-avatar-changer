@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain  } = require('electron')
+const { app, BrowserWindow, ipcMain, Tray, Menu  } = require('electron')
 const path = require('path')
 const SteamCommunity = require('steamcommunity');
 const fs = require('fs');
@@ -31,6 +31,20 @@ function createWindow () {
     }
   })
   _mainWindow.loadFile('index.html');
+
+  _mainWindow.on('minimize',function(event){
+    event.preventDefault();
+    _mainWindow.hide();
+  });
+  
+  _mainWindow.on('close', function (event) {
+    if(!app.isQuiting){
+        event.preventDefault();
+        _mainWindow.hide();
+    }
+  
+    return false;
+  });
 }
 
 app.whenReady().then(() => {
@@ -41,6 +55,20 @@ app.whenReady().then(() => {
       createWindow()
     }
   })
+
+  var contextMenu = Menu.buildFromTemplate([
+    { label: 'Show App', click:  function(){
+      _mainWindow.show();
+    } },
+    { label: 'Quit', click:  function(){
+      app.isQuiting = true;
+      app.quit();
+    } }
+  ]);
+
+  appIcon = new Tray('./steam.png');
+  appIcon.setToolTip('Steam Avatar Changer');
+  appIcon.setContextMenu(contextMenu);
 })
 
 app.on('window-all-closed', () => {
@@ -48,6 +76,9 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+
+
 
 
 function initLogin() {
