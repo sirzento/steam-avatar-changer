@@ -187,6 +187,10 @@ ipcMain.on('logout', function(event) {
     _mainWindow.loadFile('index.html');
 })
 
+ipcMain.on('newDate', function (event) {
+  _mainWindow.loadFile('./windows/date/date.html');
+});
+
 ipcMain.on('2FacLogin', function (event, details) {
   _2facWindow.close();
   details.disableMobile = false;
