@@ -14,9 +14,11 @@ var _tempPass = null;
 
 var _2facWindow = null;
 
+var _mainWindow = null;
+
 
 function createWindow () {
-  const win = new BrowserWindow({
+   _mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     titleBarStyle: "hidden",
@@ -28,7 +30,7 @@ function createWindow () {
       enableRemoteModule: true,
     }
   })
-  win.loadFile('index.html');
+  _mainWindow.loadFile('index.html');
 }
 
 app.whenReady().then(() => {
@@ -60,6 +62,7 @@ function initLogin() {
         console.log("Login succesfully");
         _sessionID = sessionID;
         _cookies = cookies;
+        _mainWindow.loadFile('./windows/Overview/overview.html');
       }
     })
   }
