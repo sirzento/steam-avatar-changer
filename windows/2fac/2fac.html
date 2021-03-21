@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam Guard Code</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="../../resources/css/bootstrap4.css">
+</head>
+<body class="h-100">
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="col-12">
+                <form name="ipcForm" onSubmit="JavaScript:sendForm(event)">
+                    <div class="form-group">
+                        <label for="code">Steam Guard Code</label>
+                        <input type="text" name="code" id="code" class="form-control" placeholder="Steam Guard Code">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Login">
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src='2fac.js'></script>
+<script src='../../titlebarRenderer.js'></script>

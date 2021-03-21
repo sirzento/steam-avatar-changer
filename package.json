@@ -1,0 +1,19 @@
+{
+  "name": "electronApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^12.0.1"
+  },
+  "dependencies": {
+    "custom-electron-titlebar": "^3.2.6",
+    "steamcommunity": "^3.42.0"
+  }
+}
