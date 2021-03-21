@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Steam Avatar Changer</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="./resources/css/bootstrap4.css">
+    
+    
+</head>
+<body class="h-100">
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="col-5">
+                <h2>Steam Login</h2>
+                <form name="ipcForm" onSubmit="JavaScript:sendForm(event)">
+                    <div class="form-group">
+                        <label for="user">Username</label>
+                        <input type="text" name="user" id="user" class="form-control" placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                        <label for="pass">Password</label>
+                        <input type="password" name="pass" id="pass" class="form-control" placeholder="*********">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Login">
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script src='titlebarRenderer.js'></script>
+<script src='renderer.js'></script>
