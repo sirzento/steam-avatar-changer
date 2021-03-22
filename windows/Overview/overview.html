@@ -5,11 +5,37 @@
     <title>Steam Avatar Changer</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <link rel="stylesheet" href="../../resources/css/bootstrap4.css">
-    
-    
 </head>
 <body class="h-100">
-   <h1>TEST</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0" style="width: 100%; position: absolute;">
+        <a class="navbar-brand py-0" href="#">
+            <img src="../../steam.png" width="40" height="40" class="d-inline-block align-top" alt="" id="userImage">
+            <span id="userName"></span>
+          </a>
+        <ul class="nav navbar-nav navbar-right">
+            <li><input type="button" class="btn btn-link" onclick="JavaScript:logout()" value="Logout"></li>
+        </ul>
+      </nav>
+
+
+      <div class="container" style="padding-top: 50px;">
+        <div class="row">
+            <div class="col-4">
+                <img src="../../steam.png" style="width: 200px; height: 200px;">
+            </div>
+            <div class="col-8">
+                <br>
+                <p>NAME</p>
+                <div>
+                    From <span>dateFrom</span> to <span>dateTo</span>
+                </div>
+                <input type="button" class="btn btn-outline-info" onclick="JavaScript:edit(NAME)" value="Edit">
+                <input type="button" class="btn btn-outline-danger" onclick="JavaScript:delete(NAME)" value="Delete">
+            </div>
+        </div>
+      </div>
+
+
 </body>
 </html>
 <script src='../../titlebarRenderer.js'></script>
