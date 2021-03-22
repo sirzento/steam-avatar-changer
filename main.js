@@ -125,7 +125,7 @@ function login(details) {
         dialog.showMessageBox({
           type: 'error',
           message: 'Login failed',
-          detail: 'Username or password incorrect'
+          detail: 'The account name or password that you have entered is incorrect.'
         })
       } else {
         getSteamGuardCode(details);
