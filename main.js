@@ -306,7 +306,8 @@ function checkAndChangeAvatar() {
 }
 
 function changeImage(imagePath) {
-	community.uploadAvatar(imagePath, "png", function(err, url) {
+  let fileInfo = imagePath.split('.');
+	community.uploadAvatar(imagePath, fileInfo[fileInfo.length - 1], function(err, url) {
 		console.log(url);
     _steamAvatarUrl = url;
 	})
