@@ -200,8 +200,8 @@ ipcMain.on('newDate', function (event) {
 });
 
 ipcMain.on('saveDate', function (event, date) {
-  let newFilePath = './avatars/' + date.filePath.split('/')[date.filePath.split('/').length - 1]
-  fs.copyFileSync(date.filePath, newFilePath);
+  let newFilePath = date.filePath.split('/')[date.filePath.split('/').length - 1]
+  fs.copyFileSync(date.filePath, './avatars/' + newFilePath);
   date.filePath = newFilePath;
 
   // TODO nur ein default gleichzeitig
