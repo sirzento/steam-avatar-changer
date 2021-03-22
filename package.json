@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "custom-electron-titlebar": "^3.2.6",
-    "steamcommunity": "^3.42.0"
+    "steamcommunity": "^3.42.0",
+    "uuid": "^8.3.2"
   }
 }

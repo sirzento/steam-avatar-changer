@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../resources/css/bootstrap4.css">
 </head>
 <body class="h-100">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-0" style="width: 100%; position: absolute; padding-left: 0px; z-index: 9999;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0" style="width: 100%; position: absolute; padding-left: 0px; z-index: 9999;">
         <a class="navbar-brand py-0" href="#">
             <img src="../../steam.png" width="40" height="40" class="d-inline-block align-top" alt="" id="userImage">
             <span id="userName"></span>
@@ -19,12 +19,12 @@
       
       <div class="container h-100">
         <div class="row h-100 justify-content-center align-items-center">
-            <div class="col-4">
-                <div class="justify-content-center align-items-center" id="imageArea" onclick="JavaScript:loadImage()" style="width: 200px; height: 200px; border: 1px solid lightslategray;">
-                    <span>Add Image</span>
-                </div>
+            <div class="col-5">
+                <img class="justify-content-center align-items-center" id="imageArea" onclick="JavaScript:loadImage()" style="width: 200px; height: 200px; border: 1px solid lightslategray;">
+                    <span>(^^click^^^to change image)</span>
+                </img>
             </div>
-            <div class="col-8">
+            <div class="col-7">
                 <form name="ipcForm" onSubmit="JavaScript:sendForm(event)">
                     <div class="form-group">
                         <label for="name">Name</label>
@@ -44,6 +44,7 @@
                         </div>
                     </div>
                     <input class="btn btn-primary" type="submit" value="Save">
+                    <input class="btn btn-danger" type="button" value="Cancel" onclick="Javascript:cancel()">
                 </form>
             </div>
         </div>

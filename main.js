@@ -3,6 +3,7 @@ const path = require('path')
 const SteamCommunity = require('steamcommunity');
 const fs = require('fs');
 let community = new SteamCommunity();
+const schedule = require('node-schedule');
 
 var _sessionID = null;
 var _cookies = null;
@@ -13,6 +14,7 @@ var _steamAvatarUrl = null;
 
 var _tempUser = null;
 var _tempPass = null;
+var _tempDateToEdit = null;
 
 var _2facWindow = null;
 
@@ -21,7 +23,7 @@ var _mainWindow = null;
 
 function createWindow () {
    _mainWindow = new BrowserWindow({
-    width: 800,
+    width: 600,
     height: 600,
     titleBarStyle: "hidden",
     frame: false,
@@ -199,15 +201,49 @@ ipcMain.on('newDate', function (event) {
   _mainWindow.loadFile('./windows/date/date.html');
 });
 
+ipcMain.on('editDate', function (event, id) {
+  let data = JSON.parse(fs.readFileSync('./data.json'));
+  _tempDateToEdit = data.find(x => x.id == id);
+  _mainWindow.loadFile('./windows/date/date.html');
+});
+
+ipcMain.on('isEditDate', function (event) {
+  if(_tempDateToEdit) {
+    event.sender.send('isEditDateAnswer', {isNew: false, date: _tempDateToEdit});
+    _tempDateToEdit = null;
+  } else {
+    event.sender.send('isEditDateAnswer', {isNew: true, date: null});
+  }
+});
+
+ipcMain.on('deleteDate', function (event, id) {
+  let data = JSON.parse(fs.readFileSync('./data.json'));
+  let exists = data.find(x => x.id == id);
+  if(exists) {
+    data = data.filter(x => x.id != id);
+    fs.writeFileSync('./data.json', JSON.stringify(data));
+    event.sender.send('refreshList');
+  }
+});
+
 ipcMain.on('saveDate', function (event, date) {
-  let newFilePath = date.filePath.split('/')[date.filePath.split('/').length - 1]
-  fs.copyFileSync(date.filePath, './avatars/' + newFilePath);
-  date.filePath = newFilePath;
+  if(date.filePath.includes('/')){
+    let newFilePath = date.filePath.split('/')[date.filePath.split('/').length - 1];
+    fs.copyFileSync(date.filePath, './avatars/' + newFilePath);
+    date.filePath = newFilePath;
+  }
+  let startYear = parseInt(date.dateFrom.split('-')[0]);
+  let endYear = parseInt(date.dateTo.split('-')[0]);
+
+  date.betweenYear = endYear - startYear > 0;
+
 
   // TODO nur ein default gleichzeitig
   let data = JSON.parse(fs.readFileSync('./data.json'));
-  let exists = data.find(x => x.name == date.name);
+  let exists = data.find(x => x.id == date.id);
   if(exists) {
+    exists.betweenYear = date.betweenYear;
+    exists.name = date.name;
     exists.filePath = date.filePath;
     exists.dateFrom = date.dateFrom;
     exists.dateTo = date.dateTo;
@@ -217,6 +253,10 @@ ipcMain.on('saveDate', function (event, date) {
   }
 
   fs.writeFileSync('./data.json', JSON.stringify(data));
+  _mainWindow.loadFile('./windows/Overview/overview.html');
+});
+
+ipcMain.on('showOverview', function (event) {
   _mainWindow.loadFile('./windows/Overview/overview.html');
 });
 
@@ -233,6 +273,10 @@ ipcMain.on('2FacLogin', function (event, details) {
 ipcMain.on('getUserInfo', function (event) {
   event.sender.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
 });
+
+
+
+
 
 function changeImage(imagePath) {
 	community.uploadAvatar(imagePath, "png", function(err, url) {
