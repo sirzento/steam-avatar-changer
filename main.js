@@ -284,14 +284,23 @@ function checkAndChangeAvatar() {
 
   let data = JSON.parse(fs.readFileSync('./data.json'));
 
-  let todaysData = data.filter(x => new Date(x.dateFrom + ' 00:00:00') < today && new Date(x.dateTo + ' 23:59:59') > today);
+  let todaysData = data.filter((x) => {
+    let dateFromArray = x.dateFrom.split('-');
+    let dateToArray = x.dateTo.split('-');
 
-  if(todaysData) {
-    changeImage('./avatars/' + todaysData.filePath);
+    if(x.betweenYear) {
+      return new Date(today.getFullYear() + '-' + dateFromArray[1] + '-' + dateFromArray[2] + ' 00:00:00') < today || new Date(today.getFullYear() + '-' + dateToArray[1] + '-' + dateToArray[2] + ' 23:59:59') > today
+    } else {
+      return new Date(today.getFullYear() + '-' + dateFromArray[1] + '-' + dateFromArray[2] + ' 00:00:00') < today && new Date(today.getFullYear() + '-' + dateToArray[1] + '-' + dateToArray[2] + ' 23:59:59') > today
+    }
+  });
+
+  if(todaysData.length) {
+    changeImage('./avatars/' + todaysData[0].filePath);
   } else {
     todaysData = data.filter(x => x.isDefault);
-    if(todaysData) {
-      changeImage('./avatars/' + todaysData.filePath);
+    if(todaysData.length) {
+      changeImage('./avatars/' + todaysData[0].filePath);
     }
   }
 }
