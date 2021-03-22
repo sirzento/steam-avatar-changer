@@ -274,12 +274,31 @@ ipcMain.on('getUserInfo', function (event) {
   event.sender.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
 });
 
+const job = schedule.scheduleJob('0 0 * * *', () => { 
+  checkAndChangeAvatar();
+}) // run everyday at midnight
+checkAndChangeAvatar();
 
+function checkAndChangeAvatar() {
+  let today = new Date();
 
+  let data = JSON.parse(fs.readFileSync('./data.json'));
 
+  let todaysData = data.filter(x => new Date(x.dateFrom + ' 00:00:00') < today && new Date(x.dateTo + ' 23:59:59') > today);
+
+  if(todaysData) {
+    changeImage('./avatars/' + todaysData.filePath);
+  } else {
+    todaysData = data.filter(x => x.isDefault);
+    if(todaysData) {
+      changeImage('./avatars/' + todaysData.filePath);
+    }
+  }
+}
 
 function changeImage(imagePath) {
 	community.uploadAvatar(imagePath, "png", function(err, url) {
 		console.log(url);
+    _steamAvatarUrl = url;
 	})
 }
