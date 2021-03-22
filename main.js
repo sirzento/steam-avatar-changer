@@ -4,6 +4,7 @@ const SteamCommunity = require('steamcommunity');
 const fs = require('fs');
 let community = new SteamCommunity();
 const schedule = require('node-schedule');
+const AutoLaunch = require('auto-launch');
 
 var _sessionID = null;
 var _cookies = null;
@@ -73,6 +74,15 @@ app.whenReady().then(() => {
   appIcon = new Tray('./steam.png');
   appIcon.setToolTip('Steam Avatar Changer');
   appIcon.setContextMenu(contextMenu);
+
+  let autoLaunch = new AutoLaunch({
+    name: 'Steam Avatar Changer',
+    path: app.getPath('exe'),
+    isHidden: true
+  });
+  autoLaunch.isEnabled().then((isEnabled) => {
+    if (!isEnabled) autoLaunch.enable();
+  });
 })
 
 app.on('window-all-closed', () => {
