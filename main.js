@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu  } = require('electron')
+const { app, BrowserWindow, ipcMain, Tray, Menu, dialog  } = require('electron')
 const path = require('path')
 const SteamCommunity = require('steamcommunity');
 const fs = require('fs');
@@ -72,6 +72,9 @@ app.whenReady().then(() => {
   ]);
 
   appIcon = new Tray('./steam.png');
+  appIcon.on('double-click', function() {
+    _mainWindow.show();
+  })
   appIcon.setToolTip('Steam Avatar Changer');
   appIcon.setContextMenu(contextMenu);
 
@@ -109,6 +112,7 @@ function initLogin() {
         _cookies = cookies;
         getSteamUserInfo();
         loadOverview();
+        checkAndChangeAvatar();
       }
     })
   }
@@ -118,7 +122,11 @@ function login(details) {
 	community.login(details, function(err, sessionID, cookies, steamguard, oAuthToken) {
 		if(err) {
       if(err.message == "The account name or password that you have entered is incorrect.") {
-        // TODO
+        dialog.showMessageBox({
+          type: 'error',
+          message: 'Login failed',
+          detail: 'Username or password incorrect'
+        })
       } else {
         getSteamGuardCode(details);
       }
@@ -137,6 +145,7 @@ function login(details) {
       getSteamUserInfo();
       console.log("Login Erfolgreich");
       loadOverview();
+      checkAndChangeAvatar();
 		}
 	})
 }
@@ -287,9 +296,9 @@ ipcMain.on('getUserInfo', function (event) {
 const job = schedule.scheduleJob('0 0 * * *', () => { 
   checkAndChangeAvatar();
 }) // run everyday at midnight
-checkAndChangeAvatar();
 
 function checkAndChangeAvatar() {
+  console.log('Checking for new avatar...')
   let today = new Date();
 
   let data = JSON.parse(fs.readFileSync('./data.json'));
@@ -311,6 +320,8 @@ function checkAndChangeAvatar() {
     todaysData = data.filter(x => x.isDefault);
     if(todaysData.length) {
       changeImage('./avatars/' + todaysData[0].filePath);
+    } else {
+      console.log('No new avatar needed')
     }
   }
 }
