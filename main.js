@@ -283,6 +283,7 @@ ipcMain.on('saveDate', function (event, date) {
   }
 
   fs.writeFileSync('./data.json', JSON.stringify(data));
+  checkAndChangeAvatar();
   _mainWindow.loadFile('./windows/Overview/overview.html');
 });
 
