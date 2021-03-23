@@ -53,6 +53,7 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
+  init();
   createWindow()
   initLogin();
   app.on('activate', () => {
@@ -95,7 +96,17 @@ app.on('window-all-closed', () => {
 })
 
 
-
+function init() {
+  if(!fs.existsSync('./secrets')) {
+    fs.mkdirSync('./secrets');
+  }
+  if(!fs.existsSync('./avatars')) {
+    fs.mkdirSync('./avatars');
+  }
+  if(!fs.existsSync('./data.json')) {
+    fs.writeFileSync('./data.json', '[]');
+  }
+}
 
 
 function initLogin() {
