@@ -20,9 +20,10 @@
       <div class="container h-100">
         <div class="row h-100 justify-content-center align-items-center">
             <div class="col-5">
-                <img class="justify-content-center align-items-center" id="imageArea" onclick="JavaScript:loadImage()" style="width: 200px; height: 200px; border: 1px solid lightslategray;">
-                    <span>(^^click^^^to change image)</span>
-                </img>
+                <div style="position: relative; height: 200px; width: 200px; margin-top: -67px;">
+                    <span style="position: relative; top: 45%; left: 28%">Change Image</span>
+                    <img class="justify-content-center align-items-center" id="imageArea" onclick="JavaScript:loadImage()" style="width: 200px; height: 200px; border: 1px solid lightslategray; position: absolute; top: 0px; left: 0px">
+                </div>
             </div>
             <div class="col-7">
                 <form name="ipcForm" onSubmit="JavaScript:sendForm(event)">
@@ -36,8 +37,8 @@
                         
                         <label for="dateTo">Date to</label>
                         <input type="date" name="dateTo" id="dateTo" class="form-control" placeholder="">
+                        (The year can be ignored)
                     </div>
-                    (The year can be ignored)
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="isDefault">
