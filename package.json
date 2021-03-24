@@ -6,7 +6,10 @@
   "scripts": {
     "start": "electron ."
   },
-  "keywords": ["steam", "avatar"],
+  "keywords": [
+    "steam",
+    "avatar"
+  ],
   "author": "Sirzento",
   "license": "ISC",
   "devDependencies": {
@@ -15,6 +18,7 @@
   "dependencies": {
     "auto-launch": "^5.0.5",
     "custom-electron-titlebar": "^3.2.6",
+    "electron-squirrel-startup": "^1.0.0",
     "node-schedule": "^2.0.0",
     "steamcommunity": "^3.42.0",
     "uuid": "^8.3.2"
