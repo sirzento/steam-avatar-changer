@@ -1,13 +1,13 @@
 {
-  "name": "electronApp",
-  "version": "1.0.0",
-  "description": "",
+  "name": "steamavatarchanger",
+  "version": "0.8.7",
+  "description": "A light application that changes your steam avatar on specific dates.",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["steam", "avatar"],
+  "author": "Sirzento",
   "license": "ISC",
   "devDependencies": {
     "electron": "^12.0.1"

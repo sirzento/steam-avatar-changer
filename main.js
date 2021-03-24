@@ -74,9 +74,9 @@ app.whenReady().then(() => {
 
   let trayIcon = null
   if(!app.isPackaged) {
-    trayIcon = './steam.png'; // when in dev mode
+    trayIcon = './icon.png'; // when in dev mode
   } else {
-    trayIcon = './resources/app/steam.png';
+    trayIcon = './resources/app/icon.png';
   }
   appIcon = new Tray(trayIcon);
   appIcon.on('double-click', function() {
