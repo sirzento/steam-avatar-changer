@@ -74,5 +74,9 @@ ipcRenderer.on('isEditDateAnswer', function (event, args) {
         document.getElementById("dateFrom").value = args.date.dateFrom;
         document.getElementById("dateTo").value = args.date.dateTo;
         document.getElementById("isDefault").checked = args.date.isDefault;
+        if(args.date.isDefault) {
+            let dateArea = document.getElementById('dateData');
+            dateArea.style.display = "none";
+        }
     }
 });
