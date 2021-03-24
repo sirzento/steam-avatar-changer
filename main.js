@@ -39,7 +39,8 @@ function createWindow () {
 	    nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-    }
+    },
+    icon: 'icon.png'
   })
   _mainWindow.loadFile('index.html');
 
