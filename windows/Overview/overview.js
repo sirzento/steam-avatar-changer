@@ -29,7 +29,7 @@ function loadDateList() {
                 <input type="button" class="btn btn-outline-info" onclick="JavaScript:editDate('`+date.id+`')" value="Edit">
                 <input type="button" class="btn btn-outline-danger" onclick="JavaScript:deleteDate('`+date.id+`')" value="Delete">
             </div>
-        </div>`;
+        </div><hr style='border-color:lightslategray;' />`;
 
         element.innerHTML += innerString;
     }
