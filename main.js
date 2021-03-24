@@ -341,6 +341,10 @@ ipcMain.on('getUserInfo', function (event) {
   event.sender.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
 });
 
+ipcMain.on('getDevInfo', function (event) {
+  event.sender.send('sendDevInfo', { dev: !app.isPackaged, path: app.getAppPath()});
+});
+
 const job = schedule.scheduleJob('0 0 * * *', () => { 
   checkAndChangeAvatar();
 }) // run everyday at midnight
