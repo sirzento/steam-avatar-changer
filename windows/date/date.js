@@ -2,9 +2,26 @@ const dialog = require('electron').remote.dialog;
 const BrowserWindow = require('electron').BrowserWindow;
 const ipcRenderer = require('electron').ipcRenderer;
 const { v4: uuidv4 } = require('uuid');
+var checkbox = document.getElementById('isDefault');
 
 let filePath = null;
 let id = null;
+
+
+(function() {
+    checkbox.addEventListener('change', function() {
+        let dateArea = document.getElementById('dateData');
+        if (this.checked) {
+          console.log("Checkbox is checked..");
+          dateArea.style.display = "none";
+        } else {
+          console.log("Checkbox is not checked..");
+          dateArea.style.display = "block";
+        }
+      });
+ })();
+
+
 
 function loadImage() {
     dialog.showOpenDialog(BrowserWindow, {
@@ -28,9 +45,11 @@ function sendForm(event) {
     let dateFrom = document.getElementById("dateFrom").value;
     let dateTo = document.getElementById("dateTo").value;
     let isDefault = document.getElementById("isDefault").checked;
+    if(isDefault) {
+        if(!dateFrom) dateFrom = '2020-01-01';
+        if(!dateTo) dateTo = '2020-01-01';
+    }
 
-
-    // TODO check if dateFrom < dateTo
     if(name && dateFrom && dateTo && filePath) {
         if(id === null) {
             id = uuidv4();
