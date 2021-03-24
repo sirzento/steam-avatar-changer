@@ -16,11 +16,16 @@ function loadDateList() {
             </div>
             <div class="col-7">
                 <br>
-                <p style='font-size: x-large'>`+date.name+`</p>
-                <div>
-                    From <span>`+new Date(date.dateFrom).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})+`</span> to <span>`+new Date(date.dateTo).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})+`</span>
-                </div>
-                <br>
+                <p style='font-size: x-large'>`+date.name+`</p>`;
+        if(date.isDefault) {
+            innerString += `<div class='text-success'>Default Avatar</div>`
+        } else {
+            innerString += `<div>
+                From <span>`+new Date(date.dateFrom).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})+`</span> to <span>`+new Date(date.dateTo).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})+`</span>
+            </div>`;
+        }
+                
+        innerString +=`<br>
                 <input type="button" class="btn btn-outline-info" onclick="JavaScript:editDate('`+date.id+`')" value="Edit">
                 <input type="button" class="btn btn-outline-danger" onclick="JavaScript:deleteDate('`+date.id+`')" value="Delete">
             </div>
