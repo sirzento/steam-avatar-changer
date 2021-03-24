@@ -1,10 +1,19 @@
 const customTitlebar = require('custom-electron-titlebar');
 const ipcRenderer2 = require('electron').ipcRenderer;
 
+// let iconPath = null;
+//   if(!app.isPackaged) {
+//     iconPath = 'icon.ico'// when in dev mode
+//   } else {
+//     iconPath = './resources/app/icon.ico';
+//   }
+
 new customTitlebar.Titlebar({
 	backgroundColor: customTitlebar.Color.fromHex('#444'),
     maximizable: false,
-    menu: null
+    menu: null,
+    icon: '../../icon.ico',
+    titleHorizontalAlignment: 'left'
 });
 
 ipcRenderer2.send('getUserInfo');
