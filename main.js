@@ -293,11 +293,15 @@ ipcMain.on('saveDate', function (event, date) {
 
   date.betweenYear = endYear - startYear > 0;
 
-
-  // TODO nur ein default gleichzeitig
   let data = JSON.parse(fs.readFileSync('./data.json'));
   let exists = data.find(x => x.id == date.id);
   if(exists) {
+    if(!exists.isDefault && date.isDefault) {
+      let hasAlreadyDefault = data.filter(x => x.isDefault);
+      if(hasAlreadyDefault.length > 0) {
+        hasAlreadyDefault.isDefault = false;
+      }
+    }
     exists.betweenYear = date.betweenYear;
     exists.name = date.name;
     exists.filePath = date.filePath;
@@ -305,6 +309,12 @@ ipcMain.on('saveDate', function (event, date) {
     exists.dateTo = date.dateTo;
     exists.isDefault = date.isDefault;
   } else {
+    if(date.isDefault) {
+      let hasAlreadyDefault = data.filter(x => x.isDefault);
+      if(hasAlreadyDefault.length > 0) {
+        hasAlreadyDefault.isDefault = false;
+      }
+    }
     data.push(date);
   }
 
@@ -346,9 +356,9 @@ function checkAndChangeAvatar() {
     let dateToArray = x.dateTo.split('-');
 
     if(x.betweenYear) {
-      return new Date(today.getFullYear() + '-' + dateFromArray[1] + '-' + dateFromArray[2] + ' 00:00:00') < today || new Date(today.getFullYear() + '-' + dateToArray[1] + '-' + dateToArray[2] + ' 23:59:59') > today
+      return (new Date(today.getFullYear() + '-' + dateFromArray[1] + '-' + dateFromArray[2] + ' 00:00:00') < today || new Date(today.getFullYear() + '-' + dateToArray[1] + '-' + dateToArray[2] + ' 23:59:59') > today) && !x.isDefault;
     } else {
-      return new Date(today.getFullYear() + '-' + dateFromArray[1] + '-' + dateFromArray[2] + ' 00:00:00') < today && new Date(today.getFullYear() + '-' + dateToArray[1] + '-' + dateToArray[2] + ' 23:59:59') > today
+      return (new Date(today.getFullYear() + '-' + dateFromArray[1] + '-' + dateFromArray[2] + ' 00:00:00') < today && new Date(today.getFullYear() + '-' + dateToArray[1] + '-' + dateToArray[2] + ' 23:59:59') > today) && !x.isDefault;
     }
   });
 
