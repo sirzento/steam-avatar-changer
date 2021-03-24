@@ -11,6 +11,7 @@ const fs = require('fs');
 let community = new SteamCommunity();
 const schedule = require('node-schedule');
 const AutoLaunch = require('auto-launch');
+let autoLaunch;
 
 var _sessionID = null;
 var _cookies = null;
@@ -29,6 +30,12 @@ var _mainWindow = null;
 
 
 function createWindow () {
+  let iconPath = null;
+  if(!app.isPackaged) {
+    iconPath = 'icon.ico'// when in dev mode
+  } else {
+    iconPath = './resources/app/icon.ico';
+  }
    _mainWindow = new BrowserWindow({
     width: 600,
     height: 600,
@@ -40,7 +47,7 @@ function createWindow () {
       contextIsolation: false,
       enableRemoteModule: true,
     },
-    icon: 'icon.png'
+    icon: iconPath
   })
   _mainWindow.loadFile('index.html');
 
@@ -92,9 +99,9 @@ app.whenReady().then(() => {
   appIcon.setToolTip('Steam Avatar Changer');
   appIcon.setContextMenu(contextMenu);
 
-  let autoLaunch = new AutoLaunch({
+
+  autoLaunch = new AutoLaunch({
     name: 'SteamAvatarChanger',
-    path: app.getPath('exe'),
     isHidden: true
   });
   autoLaunch.isEnabled().then((isEnabled) => {
