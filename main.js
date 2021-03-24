@@ -72,7 +72,13 @@ app.whenReady().then(() => {
     } }
   ]);
 
-  appIcon = new Tray('./steam.png');
+  let trayIcon = null
+  if(!app.isPackaged) {
+    trayIcon = './steam.png'; // when in dev mode
+  } else {
+    trayIcon = './resources/app/steam.png';
+  }
+  appIcon = new Tray(trayIcon);
   appIcon.on('double-click', function() {
     _mainWindow.show();
   })
@@ -80,7 +86,7 @@ app.whenReady().then(() => {
   appIcon.setContextMenu(contextMenu);
 
   let autoLaunch = new AutoLaunch({
-    name: 'Steam Avatar Changer',
+    name: 'SteamAvatarChanger',
     path: app.getPath('exe'),
     isHidden: true
   });
@@ -259,7 +265,13 @@ ipcMain.on('deleteDate', function (event, id) {
 ipcMain.on('saveDate', function (event, date) {
   if(date.filePath.includes('/')){
     let newFilePath = date.filePath.split('/')[date.filePath.split('/').length - 1];
-    fs.copyFileSync(date.filePath, './avatars/' + newFilePath);
+    let filePath = null;
+    if(!app.isPackaged) {
+      fs.copyFileSync(date.filePath, './avatars/' + newFilePath); // when in dev mode
+    } else {
+      fs.copyFileSync(date.filePath, './resources/app/avatars/' + newFilePath); 
+    }
+    
     date.filePath = newFilePath;
   }
   let startYear = parseInt(date.dateFrom.split('-')[0]);
@@ -326,12 +338,19 @@ function checkAndChangeAvatar() {
     }
   });
 
+  let path = null;
+  if(!app.isPackaged) {
+    path = './avatars/'; // when in dev mode
+  } else {
+    path = './resources/app/avatars/';
+  }
+
   if(todaysData.length) {
-    changeImage('./avatars/' + todaysData[0].filePath);
+    changeImage(path + todaysData[0].filePath);
   } else {
     todaysData = data.filter(x => x.isDefault);
     if(todaysData.length) {
-      changeImage('./avatars/' + todaysData[0].filePath);
+      changeImage(path + todaysData[0].filePath);
     } else {
       console.log('No new avatar needed')
     }
@@ -341,7 +360,15 @@ function checkAndChangeAvatar() {
 function changeImage(imagePath) {
   let fileInfo = imagePath.split('.');
 	community.uploadAvatar(imagePath, fileInfo[fileInfo.length - 1], function(err, url) {
-		console.log(url);
+    if(err) {
+      dialog.showMessageBox({
+        type: 'error',
+        message: 'Error Code: 21',
+        detail: err.message
+      })
+    } else {
+      console.log(url);
     _steamAvatarUrl = url;
+    }
 	})
 }
