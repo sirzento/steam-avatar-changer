@@ -3,9 +3,10 @@ const ipcRenderer = require('electron').ipcRenderer;
 loadDateList();
 const appDataPath = process.env.APPDATA.replace(/\\/g, '\/') + "/SteamAvatarChanger";
 const avatarsPath = appDataPath + "/avatars";
+const dataFilePath = appDataPath + "/data.json";
 
 function loadDateList() {
-    let data = JSON.parse(fs.readFileSync('./data.json'));
+    let data = JSON.parse(fs.readFileSync(dataFilePath));
 
     const element = document.getElementById('dateContainer');
     element.innerHTML = '';
