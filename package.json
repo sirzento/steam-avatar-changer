@@ -1,6 +1,6 @@
 {
   "name": "steamavatarchanger",
-  "version": "0.8.7",
+  "version": "1.0.0",
   "description": "A light application that changes your steam avatar on specific dates.",
   "main": "main.js",
   "scripts": {
