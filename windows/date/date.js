@@ -3,6 +3,8 @@ const BrowserWindow = require('electron').BrowserWindow;
 const ipcRenderer = require('electron').ipcRenderer;
 const { v4: uuidv4 } = require('uuid');
 var checkbox = document.getElementById('isDefault');
+const appDataPath = process.env.APPDATA.replace(/\\/g, '\/') + "/SteamAvatarChanger";
+const avatarsPath = appDataPath + "/avatars";
 
 let filePath = null;
 let id = null;
@@ -69,7 +71,7 @@ ipcRenderer.on('isEditDateAnswer', function (event, args) {
         id = args.date.id;
         filePath = args.date.filePath;
         const imageArea = document.getElementById("imageArea");
-        if (imageArea) imageArea.src = '../../avatars/'+ filePath;
+        if (imageArea) imageArea.src = avatarsPath + '/'+ filePath;
         document.getElementById("name").value = args.date.name;
         document.getElementById("dateFrom").value = args.date.dateFrom;
         document.getElementById("dateTo").value = args.date.dateTo;

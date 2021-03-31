@@ -1,6 +1,8 @@
 const fs = require('fs');
 const ipcRenderer = require('electron').ipcRenderer;
 loadDateList();
+const appDataPath = process.env.APPDATA.replace(/\\/g, '\/') + "/SteamAvatarChanger";
+const avatarsPath = appDataPath + "/avatars";
 
 function loadDateList() {
     let data = JSON.parse(fs.readFileSync('./data.json'));
@@ -12,7 +14,7 @@ function loadDateList() {
         let innerString = 
         `<div class="row">
             <div class="col-5">
-                <img src="../../avatars/`+ date.filePath +`" style="width: 200px; height: 200px;">
+                <img src="`+ avatarsPath + date.filePath +`" style="width: 200px; height: 200px;">
             </div>
             <div class="col-7">
                 <br>
