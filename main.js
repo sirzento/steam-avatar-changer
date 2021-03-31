@@ -293,10 +293,14 @@ ipcMain.on('saveDate', function (event, date) {
     
     date.filePath = newFilePath;
   }
-  let startDate = new Date(date.dateTo);
-  let endDate = new Date(date.dateFrom);
+  let startDate = new Date(date.dateFrom);
+  let endDate = new Date(date.dateTo);
 
   date.betweenYear = startDate.setFullYear(2021) > endDate.setFullYear(2021);
+
+  console.log(startDate);
+  console.log(endDate);
+  console.log(startDate.setFullYear(2021) > endDate.setFullYear(2021));
 
   let data = JSON.parse(fs.readFileSync(dataFilePath));
   let exists = data.find(x => x.id == date.id);
