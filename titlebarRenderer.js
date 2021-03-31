@@ -4,7 +4,7 @@ const ipcRenderer2 = require('electron').ipcRenderer;
 
 
 
-
+let fetchSteamDataTries = 5;
 ipcRenderer2.send('getUserInfo');
 ipcRenderer2.send('getDevInfo');
 
@@ -29,11 +29,18 @@ ipcRenderer2.on('sendDevInfo', function (event, args) {
 ipcRenderer2.on('sendUserInfo', function (event, args) {
   console.log(args[0]);
   console.log(args[1]);
-  const userNameElement = document.getElementById("userName")
-  if (userNameElement) userNameElement.innerText = args[0];
+  if(args[0]) {
+    const userNameElement = document.getElementById("userName")
+    if (userNameElement) userNameElement.innerText = args[0];
 
-  const userImageElement = document.getElementById("userImage")
-  if (userImageElement) userImageElement.src = args[1];
+    const userImageElement = document.getElementById("userImage")
+    if (userImageElement) userImageElement.src = args[1];
+  } else {
+    fetchSteamDataTries--;
+    if(fetchSteamDataTries) {
+      setTimeout(function() {ipcRenderer2.send('getUserInfo')}, 200) ;
+    }
+  }
 });
 
 function logout() {

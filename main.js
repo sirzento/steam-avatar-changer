@@ -13,6 +13,11 @@ const schedule = require('node-schedule');
 const AutoLaunch = require('auto-launch');
 let autoLaunch;
 
+const appDataPath = process.env.APPDATA.replace(/\\/g, '\/') + "/SteamAvatarChanger";
+const avatarsPath = appDataPath + "/avatars";
+const secretsPath = appDataPath + "/secrets";
+const dataFilePath = appDataPath + "/data.json";
+
 var _sessionID = null;
 var _cookies = null;
 var _steamguard = null;
@@ -117,22 +122,26 @@ app.on('window-all-closed', () => {
 
 
 function init() {
-  if(!fs.existsSync('./secrets')) {
-    fs.mkdirSync('./secrets');
+  if(!fs.existsSync(appDataPath)) {
+    fs.mkdirSync(appDataPath);
   }
-  if(!fs.existsSync('./avatars')) {
-    fs.mkdirSync('./avatars');
+
+  if(!fs.existsSync(secretsPath)) {
+    fs.mkdirSync(secretsPath);
   }
-  if(!fs.existsSync('./data.json')) {
-    fs.writeFileSync('./data.json', '[]');
+  if(!fs.existsSync(avatarsPath)) {
+    fs.mkdirSync(avatarsPath);
+  }
+  if(!fs.existsSync(dataFilePath)) {
+    fs.writeFileSync(dataFilePath, '[]');
   }
 }
 
 
 function initLogin() {
-  if (fs.existsSync("./secrets/guard.secret")) {
-    _steamguard= fs.readFileSync("./secrets/guard.secret").toString();
-    _oAthToken = fs.readFileSync("./secrets/auth.secret").toString();
+  if (fs.existsSync(secretsPath + "/guard.secret")) {
+    _steamguard= fs.readFileSync(secretsPath + "/guard.secret").toString();
+    _oAthToken = fs.readFileSync(secretsPath + "/auth.secret").toString();
     
     community.oAuthLogin(_steamguard, _oAthToken, (err, sessionID, cookies) => {
       if(err) {
@@ -167,10 +176,10 @@ function login(details) {
 			_cookies = cookies;
 			_steamguard = steamguard;
 			_oAthToken = oAuthToken;
-			fs.writeFile("./secrets/guard.secret", steamguard, function() {
+			fs.writeFile(secretsPath + "/guard.secret", steamguard, function() {
 				console.log("guard writen.");
 			})
-			fs.writeFile("./secrets/auth.secret", oAuthToken, function() {
+			fs.writeFile(secretsPath + "/auth.secret", oAuthToken, function() {
 				console.log("auth writen.");
 			})
       getSteamUserInfo();
@@ -182,10 +191,10 @@ function login(details) {
 }
 
 function loadOverview() {
-  let exists = fs.existsSync("./data.json");
+  let exists = fs.existsSync(dataFilePath);
   let empty = true;
   if(exists) {
-    let data = JSON.parse(fs.readFileSync('./data.json'));
+    let data = JSON.parse(fs.readFileSync(dataFilePath));
     if(data.length > 0) {
       empty = false;
     }
@@ -240,9 +249,9 @@ ipcMain.on('logout', function(event) {
     _oAthToken = null;
     _steamUsername = null;
     _steamAvatarUrl = null;
-    if(fs.existsSync('./secrets/guard.secret')) {
-      fs.rmSync('./secrets/guard.secret');
-      fs.rmSync('./secrets/auth.secret');
+    if(fs.existsSync(secretsPath + '/guard.secret')) {
+      fs.rmSync(secretsPath + '/guard.secret');
+      fs.rmSync(secretsPath + '/auth.secret');
     }
     _mainWindow.loadFile('index.html');
 })
@@ -252,7 +261,7 @@ ipcMain.on('newDate', function (event) {
 });
 
 ipcMain.on('editDate', function (event, id) {
-  let data = JSON.parse(fs.readFileSync('./data.json'));
+  let data = JSON.parse(fs.readFileSync(dataFilePath));
   _tempDateToEdit = data.find(x => x.id == id);
   _mainWindow.loadFile('./windows/date/date.html');
 });
@@ -267,11 +276,11 @@ ipcMain.on('isEditDate', function (event) {
 });
 
 ipcMain.on('deleteDate', function (event, id) {
-  let data = JSON.parse(fs.readFileSync('./data.json'));
+  let data = JSON.parse(fs.readFileSync(dataFilePath));
   let exists = data.find(x => x.id == id);
   if(exists) {
     data = data.filter(x => x.id != id);
-    fs.writeFileSync('./data.json', JSON.stringify(data));
+    fs.writeFileSync(dataFilePath, JSON.stringify(data));
     event.sender.send('refreshList');
   }
 });
@@ -280,20 +289,16 @@ ipcMain.on('saveDate', function (event, date) {
   if(date.filePath.includes('/')){
     let newFilePath = date.filePath.split('/')[date.filePath.split('/').length - 1];
     let filePath = null;
-    if(!app.isPackaged) {
-      fs.copyFileSync(date.filePath, './avatars/' + newFilePath); // when in dev mode
-    } else {
-      fs.copyFileSync(date.filePath, './resources/app/avatars/' + newFilePath); 
-    }
+    fs.copyFileSync(date.filePath, avatarsPath + '/' + newFilePath);
     
     date.filePath = newFilePath;
   }
-  let startYear = parseInt(date.dateFrom.split('-')[0]);
-  let endYear = parseInt(date.dateTo.split('-')[0]);
+  date.dateTo.setFullYear(2021);
+  date.dateFrom.setFullYear(2021);
 
-  date.betweenYear = endYear - startYear > 0;
+  date.betweenYear = date.dateFrom > date.dateTo;
 
-  let data = JSON.parse(fs.readFileSync('./data.json'));
+  let data = JSON.parse(fs.readFileSync(dataFilePath));
   let exists = data.find(x => x.id == date.id);
   if(exists) {
     if(!exists.isDefault && date.isDefault) {
@@ -318,7 +323,7 @@ ipcMain.on('saveDate', function (event, date) {
     data.push(date);
   }
 
-  fs.writeFileSync('./data.json', JSON.stringify(data));
+  fs.writeFileSync(dataFilePath, JSON.stringify(data));
   checkAndChangeAvatar();
   _mainWindow.loadFile('./windows/Overview/overview.html');
 });
@@ -353,7 +358,7 @@ function checkAndChangeAvatar() {
   console.log('Checking for new avatar...')
   let today = new Date();
 
-  let data = JSON.parse(fs.readFileSync('./data.json'));
+  let data = JSON.parse(fs.readFileSync(dataFilePath));
 
   let todaysData = data.filter((x) => {
     let dateFromArray = x.dateFrom.split('-');
@@ -366,19 +371,12 @@ function checkAndChangeAvatar() {
     }
   });
 
-  let path = null;
-  if(!app.isPackaged) {
-    path = './avatars/'; // when in dev mode
-  } else {
-    path = './resources/app/avatars/';
-  }
-
   if(todaysData.length) {
-    changeImage(path + todaysData[0].filePath);
+    changeImage(avatarsPath + '/' + todaysData[0].filePath);
   } else {
     todaysData = data.filter(x => x.isDefault);
     if(todaysData.length) {
-      changeImage(path + todaysData[0].filePath);
+      changeImage(avatarsPath + '/' + todaysData[0].filePath);
     } else {
       console.log('No new avatar needed')
     }
