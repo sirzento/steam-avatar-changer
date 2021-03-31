@@ -399,6 +399,7 @@ function changeImage(imagePath) {
     } else {
       console.log(url);
     _steamAvatarUrl = url;
+    _mainWindow.webContents.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
     }
 	})
 }
