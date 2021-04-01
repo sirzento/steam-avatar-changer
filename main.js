@@ -288,7 +288,6 @@ ipcMain.on('deleteDate', function (event, id) {
 ipcMain.on('saveDate', function (event, date) {
   if(date.filePath.includes('/')){
     let newFilePath = date.filePath.split('/')[date.filePath.split('/').length - 1];
-    let filePath = null;
     fs.copyFileSync(date.filePath, avatarsPath + '/' + newFilePath);
     
     date.filePath = newFilePath;
@@ -298,19 +297,9 @@ ipcMain.on('saveDate', function (event, date) {
 
   date.betweenYear = startDate.setFullYear(2021) > endDate.setFullYear(2021);
 
-  console.log(startDate);
-  console.log(endDate);
-  console.log(startDate.setFullYear(2021) > endDate.setFullYear(2021));
-
   let data = JSON.parse(fs.readFileSync(dataFilePath));
   let exists = data.find(x => x.id == date.id);
   if(exists) {
-    if(!exists.isDefault && date.isDefault) {
-      let hasAlreadyDefault = data.filter(x => x.isDefault);
-      if(hasAlreadyDefault.length > 0) {
-        hasAlreadyDefault.isDefault = false;
-      }
-    }
     exists.betweenYear = date.betweenYear;
     exists.name = date.name;
     exists.filePath = date.filePath;
@@ -318,12 +307,6 @@ ipcMain.on('saveDate', function (event, date) {
     exists.dateTo = date.dateTo;
     exists.isDefault = date.isDefault;
   } else {
-    if(date.isDefault) {
-      let hasAlreadyDefault = data.filter(x => x.isDefault);
-      if(hasAlreadyDefault.length > 0) {
-        hasAlreadyDefault.isDefault = false;
-      }
-    }
     data.push(date);
   }
 
@@ -380,7 +363,8 @@ function checkAndChangeAvatar() {
   } else {
     todaysData = data.filter(x => x.isDefault);
     if(todaysData.length) {
-      changeImage(avatarsPath + '/' + todaysData[0].filePath);
+      let imageIndex = randomIntFromInterval(0, todaysData.length - 1)
+      changeImage(avatarsPath + '/' + todaysData[imageIndex].filePath);
     } else {
       console.log('No new avatar needed')
     }
@@ -402,6 +386,10 @@ function changeImage(imagePath) {
     _mainWindow.webContents.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
     }
 	})
+}
+
+function randomIntFromInterval(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function handleSquirrelEvent(application) {
