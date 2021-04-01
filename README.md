@@ -34,3 +34,17 @@ The please open a new issue and tell me what bug you have found or which idea yo
 With the session, the software can authenticate again with the Steam servers and authorize with the Steam Guard handle, so that the Steam Guard code does not have to be entered again.
 
 On logout, the data of the session and the Steam Guard handle are deleted.
+<hr>
+
+**Q:** What time periods do you use? / What time periods can I use?
+
+**A:** Currently I have these periods configured:
+
+- Birthday
+- Halloween
+- [Oktoberfest](https://simple.wikipedia.org/wiki/Oktoberfest) (From germany)
+- Eastern
+- Saint Patrick's Day
+- New Year
+- Valentine's Day
+- Christmas
