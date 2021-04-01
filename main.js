@@ -18,6 +18,11 @@ const avatarsPath = appDataPath + "/avatars";
 const secretsPath = appDataPath + "/secrets";
 const dataFilePath = appDataPath + "/data.json";
 
+const job = schedule.scheduleJob('0 0 * * *', () => { 
+  checkAndChangeAvatar();
+}) // run everyday at midnight
+
+//#region internal variables
 var _sessionID = null;
 var _cookies = null;
 var _steamguard = null;
@@ -33,6 +38,9 @@ var _2facWindow = null;
 
 var _mainWindow = null;
 
+//#endregion
+
+//#region window UI
 
 function createWindow () {
   let iconPath = null;
@@ -120,23 +128,45 @@ app.on('window-all-closed', () => {
   }
 })
 
-
-function init() {
-  if(!fs.existsSync(appDataPath)) {
-    fs.mkdirSync(appDataPath);
+function loadOverview() {
+  let exists = fs.existsSync(dataFilePath);
+  let empty = true;
+  if(exists) {
+    let data = JSON.parse(fs.readFileSync(dataFilePath));
+    if(data.length > 0) {
+      empty = false;
+    }
   }
-
-  if(!fs.existsSync(secretsPath)) {
-    fs.mkdirSync(secretsPath);
-  }
-  if(!fs.existsSync(avatarsPath)) {
-    fs.mkdirSync(avatarsPath);
-  }
-  if(!fs.existsSync(dataFilePath)) {
-    fs.writeFileSync(dataFilePath, '[]');
+  if(exists && !empty) {
+    _mainWindow.loadFile('./windows/Overview/overview.html');
+  } else {
+    _mainWindow.loadFile('./windows/Overview/empty/overviewEmpty.html');
   }
 }
 
+function getSteamGuardCode(details) {
+  _tempPass = details.password;
+  _tempUser = details.accountName;
+
+  _2facWindow = new BrowserWindow({
+    width: 300,
+    height: 300,
+    titleBarStyle: "hidden",
+    frame: false,
+    resizable: false,
+    webPreferences: {
+	    nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
+    }
+  })
+  _2facWindow.removeMenu();
+  _2facWindow.loadFile('./windows/2fac/2fac.html');
+}
+
+//#endregion
+
+//#region steam functions
 
 function initLogin() {
   if (fs.existsSync(secretsPath + "/guard.secret")) {
@@ -190,42 +220,6 @@ function login(details) {
 	})
 }
 
-function loadOverview() {
-  let exists = fs.existsSync(dataFilePath);
-  let empty = true;
-  if(exists) {
-    let data = JSON.parse(fs.readFileSync(dataFilePath));
-    if(data.length > 0) {
-      empty = false;
-    }
-  }
-  if(exists && !empty) {
-    _mainWindow.loadFile('./windows/Overview/overview.html');
-  } else {
-    _mainWindow.loadFile('./windows/Overview/empty/overviewEmpty.html');
-  }
-}
-
-function getSteamGuardCode(details) {
-  _tempPass = details.password;
-  _tempUser = details.accountName;
-
-  _2facWindow = new BrowserWindow({
-    width: 300,
-    height: 300,
-    titleBarStyle: "hidden",
-    frame: false,
-    resizable: false,
-    webPreferences: {
-	    nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
-    }
-  })
-  _2facWindow.removeMenu();
-  _2facWindow.loadFile('./windows/2fac/2fac.html');
-}
-
 function getSteamUserInfo() {
   community.getSteamUser(community.steamID, (err, user) => {
     if(err) {
@@ -236,6 +230,26 @@ function getSteamUserInfo() {
   })
 }
 
+function changeImage(imagePath) {
+  let fileInfo = imagePath.split('.');
+	community.uploadAvatar(imagePath, fileInfo[fileInfo.length - 1], function(err, url) {
+    if(err) {
+      dialog.showMessageBox({
+        type: 'error',
+        message: 'Error Code: 21',
+        detail: err.message
+      })
+    } else {
+      console.log(url);
+    _steamAvatarUrl = url;
+    _mainWindow.webContents.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
+    }
+	})
+}
+
+//#endregion
+
+//#region ipc Events
 
 ipcMain.on('login', function (event, details) {
   details.disableMobile = false;
@@ -337,9 +351,24 @@ ipcMain.on('getDevInfo', function (event) {
   event.sender.send('sendDevInfo', { dev: !app.isPackaged, path: app.getAppPath()});
 });
 
-const job = schedule.scheduleJob('0 0 * * *', () => { 
-  checkAndChangeAvatar();
-}) // run everyday at midnight
+//#endregion
+
+//#region functions
+
+function init() {
+  if(!fs.existsSync(appDataPath)) {
+    fs.mkdirSync(appDataPath);
+  }
+  if(!fs.existsSync(secretsPath)) {
+    fs.mkdirSync(secretsPath);
+  }
+  if(!fs.existsSync(avatarsPath)) {
+    fs.mkdirSync(avatarsPath);
+  }
+  if(!fs.existsSync(dataFilePath)) {
+    fs.writeFileSync(dataFilePath, '[]');
+  }
+}
 
 function checkAndChangeAvatar() {
   console.log('Checking for new avatar...')
@@ -371,26 +400,13 @@ function checkAndChangeAvatar() {
   }
 }
 
-function changeImage(imagePath) {
-  let fileInfo = imagePath.split('.');
-	community.uploadAvatar(imagePath, fileInfo[fileInfo.length - 1], function(err, url) {
-    if(err) {
-      dialog.showMessageBox({
-        type: 'error',
-        message: 'Error Code: 21',
-        detail: err.message
-      })
-    } else {
-      console.log(url);
-    _steamAvatarUrl = url;
-    _mainWindow.webContents.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
-    }
-	})
-}
-
 function randomIntFromInterval(min, max) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+//#endregion
+
+//#region installer
 
 function handleSquirrelEvent(application) {
   if (process.argv.length === 1) {
@@ -455,3 +471,5 @@ function handleSquirrelEvent(application) {
           return true;
   }
 };
+
+//#endregion
