@@ -1,4 +1,5 @@
 # Steam Avatar Changer
+![Software Image](https://i.imgur.com/q1K6Nma.png)
 ## What is this?
 **Steam Avatar Changer** is a lightweight program that automatically changes your Steam avatar.
 
