@@ -39,7 +39,7 @@ On logout, the data of the session and the Steam Guard handle are deleted.
 
 **Q:** What time periods do you use? / What time periods can I use?
 
-**A:** Currently I have these periods configured:
+**A:** Currently I use these periods:
 
 - Birthday
 - Halloween
