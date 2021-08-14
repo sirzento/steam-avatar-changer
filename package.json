@@ -1,6 +1,6 @@
 {
   "name": "steamavatarchanger",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A light application that changes your steam avatar on specific dates.",
   "main": "main.js",
   "scripts": {
@@ -19,8 +19,14 @@
     "auto-launch": "^5.0.5",
     "custom-electron-titlebar": "^3.2.6",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^4.3.9",
+    "image-hash": "^4.0.1",
     "node-schedule": "^2.0.0",
     "steamcommunity": "^3.42.0",
     "uuid": "^8.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sirzento/steam-avatar-changer.git"
   }
 }

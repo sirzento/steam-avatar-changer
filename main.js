@@ -6,17 +6,20 @@ if (handleSquirrelEvent(app)) {
 }
 
 const path = require('path')
+const {imageHash} = require('image-hash');
 const SteamCommunity = require('steamcommunity');
 const fs = require('fs');
 let community = new SteamCommunity();
 const schedule = require('node-schedule');
 const AutoLaunch = require('auto-launch');
+const { autoUpdater } = require('electron-updater');
 let autoLaunch;
 
 const appDataPath = process.env.APPDATA.replace(/\\/g, '\/') + "/SteamAvatarChanger";
 const avatarsPath = appDataPath + "/avatars";
 const secretsPath = appDataPath + "/secrets";
 const dataFilePath = appDataPath + "/data.json";
+const imageHashFilePath = appDataPath + "/imageHashData.json";
 
 const job = schedule.scheduleJob('0 0 * * *', () => { 
   checkAndChangeAvatar();
@@ -60,7 +63,8 @@ function createWindow () {
       contextIsolation: false,
       enableRemoteModule: true,
     },
-    icon: iconPath
+    icon: iconPath,
+    show: false
   })
   _mainWindow.loadFile('index.html');
 
@@ -76,6 +80,9 @@ function createWindow () {
     }
   
     return false;
+  });
+  _mainWindow.once('ready-to-show', () => {
+    autoUpdater.checkForUpdatesAndNotify();
   });
 }
 
@@ -180,9 +187,10 @@ function initLogin() {
         console.log("Login succesfully");
         _sessionID = sessionID;
         _cookies = cookies;
-        getSteamUserInfo();
-        loadOverview();
-        checkAndChangeAvatar();
+        getSteamUserInfo().then(x => {
+          loadOverview();
+          checkAndChangeAvatar();
+        });
       }
     })
   }
@@ -208,25 +216,31 @@ function login(details) {
 			_oAthToken = oAuthToken;
 			fs.writeFile(secretsPath + "/guard.secret", steamguard, function() {
 				console.log("guard writen.");
-			})
+			});
 			fs.writeFile(secretsPath + "/auth.secret", oAuthToken, function() {
 				console.log("auth writen.");
-			})
-      getSteamUserInfo();
+			});
       console.log("Login Erfolgreich");
-      loadOverview();
-      checkAndChangeAvatar();
+      getSteamUserInfo().then(x => {
+        loadOverview();
+        checkAndChangeAvatar();
+      });
 		}
 	})
 }
 
 function getSteamUserInfo() {
-  community.getSteamUser(community.steamID, (err, user) => {
-    if(err) {
-      console.log(err.message);
-    }
-    _steamAvatarUrl = user.getAvatarURL();
-    _steamUsername = user.name;
+  return new Promise((res, rej) => {
+    community.getSteamUser(community.steamID, (err, user) => {
+      if(err) {
+        console.log(err.message);
+      }
+      let avatarURL = user.getAvatarURL().split('.');
+      avatarURL[avatarURL.length - 2] = avatarURL[avatarURL.length - 2] + "_full";
+      _steamAvatarUrl = avatarURL.join('.');
+      _steamUsername = user.name;
+      res();
+    });
   })
 }
 
@@ -240,9 +254,10 @@ function changeImage(imagePath) {
         detail: err.message
       })
     } else {
-      console.log(url);
-    _steamAvatarUrl = url;
-    _mainWindow.webContents.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
+      console.log("Avatar changed. New URL: ", url);
+      _steamAvatarUrl = url;
+      _mainWindow.webContents.send('sendUserInfo', [_steamUsername, _steamAvatarUrl]);
+      checkAndSaveImageHash(imagePath);
     }
 	})
 }
@@ -368,6 +383,9 @@ function init() {
   if(!fs.existsSync(dataFilePath)) {
     fs.writeFileSync(dataFilePath, '[]');
   }
+  if(!fs.existsSync(imageHashFilePath)) {
+    fs.writeFileSync(imageHashFilePath, '[]');
+  }
 }
 
 function checkAndChangeAvatar() {
@@ -388,14 +406,67 @@ function checkAndChangeAvatar() {
   });
 
   if(todaysData.length) {
-    changeImage(avatarsPath + '/' + todaysData[0].filePath);
+    isSameImageAsCurrent(avatarsPath + '/' + todaysData[0].filePath).then(isSame => {
+      if(!isSame){
+        changeImage(avatarsPath + '/' + todaysData[0].filePath);
+      } else {
+        console.log("Avatar is already in use");
+      }
+    });
   } else {
     todaysData = data.filter(x => x.isDefault);
     if(todaysData.length) {
       let imageIndex = randomIntFromInterval(0, todaysData.length - 1)
-      changeImage(avatarsPath + '/' + todaysData[imageIndex].filePath);
+      isSameImageAsCurrent(avatarsPath + '/' + todaysData[imageIndex].filePath).then(isSame => {
+        if(!isSame) {
+          changeImage(avatarsPath + '/' + todaysData[imageIndex].filePath);
+        }else{
+          console.log("Avatar is already in use");
+        }
+      });
     } else {
       console.log('No new avatar needed')
+    }
+  }
+}
+
+function isSameImageAsCurrent(imagePath) {
+  return new Promise((res, rej) => {
+    if(fs.existsSync(imageHashFilePath)) {
+
+      let data = JSON.parse(fs.readFileSync(imageHashFilePath));
+      if(data.length){
+        let imageHashDataIndex = data.findIndex((x => x.imagePath === imagePath));
+
+        if(imageHashFilePath !== -1) {
+          imageHash(_steamAvatarUrl, 16, true, (error, onlineHash) => {
+            if (error) res(false); 
+            res(onlineHash === data[imageHashDataIndex].hash);
+          });
+        } else 
+        {
+          res(false);
+        }
+      } else {
+        res(false);
+      }
+    } else {
+      res(false);
+    }
+  })
+}
+
+function checkAndSaveImageHash(imagePath){
+  if(fs.existsSync(imageHashFilePath)) {
+    let data = JSON.parse(fs.readFileSync(imageHashFilePath));
+    let imageHashDataIndex = data.findIndex((x => x.imagePath === imagePath));
+
+    if(imageHashDataIndex === -1) {
+      imageHash(_steamAvatarUrl, 16, true, (error, onlineHash) => {
+        if (error) return; 
+        data.push({imagePath, "hash": onlineHash});
+        fs.writeFileSync(imageHashFilePath, JSON.stringify(data));
+      });
     }
   }
 }
@@ -407,6 +478,11 @@ function randomIntFromInterval(min, max) { // min and max included
 //#endregion
 
 //#region installer
+
+autoUpdater.on('update-downloaded', () => {
+  console.log("Update downloaded. Installing now..");
+  autoUpdater.quitAndInstall(true,true);
+});
 
 function handleSquirrelEvent(application) {
   if (process.argv.length === 1) {
