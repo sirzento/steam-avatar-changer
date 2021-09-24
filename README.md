@@ -44,7 +44,7 @@ On logout, the data of the session and the Steam Guard handle are deleted.
 - Birthday
 - Halloween
 - [Oktoberfest](https://simple.wikipedia.org/wiki/Oktoberfest) (From germany)
-- Eastern
+- Easter
 - Saint Patrick's Day
 - New Year
 - Valentine's Day
